@@ -20,11 +20,22 @@ class Game
         return eligible_words[(rand(eligible_words.length-1)-1)].split("")
     end 
 
+    def directions()
+        puts "Welcome to Hangman!  The rules of the game are very simple."
+        puts "The computer will generate a random word between 6 and 12 letters."
+        puts "It's your job to guess what that word is."
+        puts " "
+        puts "Each turn, you can guess one letter to the word. If you're right, the computer will indicate that and show you where the letter is located in the word."
+        puts "If you're wrong, the computer will add the letter to the list of incorrect guesses you've made."
+        puts " "
+        puts "If you guess incorrectly 6 times, you lose."
+    end
 
     def start
-        puts "Welcome to Hangman!  Let's get started."
-        puts "Here's your hint!"
-        #put in hint
+        puts "Good luck, have fun!"
+        puts " "
+        puts "This word is #{computer_word.length} letters long."
+        puts "#{@hint.join(" ")}" 
     end
     
     def player_guess
@@ -48,10 +59,11 @@ class Game
             computer_word.each_with_index do |letter, index|
                 if letter == current_guess
                     hint[index] = current_guess
+                    p "Nice, you guessed correctly!"
                 end
             end
         else
-            p current_guess
+            p "Oof, it looks like the word doesn't contain that letter."
             wrong_guesses.push(current_guess)
         end
     end
@@ -70,8 +82,8 @@ class Game
             player_guess()
             compare(@computer_word, @current_guess)
             @win = player_win?(@hint)
-            p hint
-            p wrong_guesses
+            p hint.join(" ")
+            p wrong_guesses.join(", ")
         end
         if @win == true
             p "Wow, you did it! The word was '#{@computer_word.join("")}.'  Would you like to play again?"
@@ -96,5 +108,4 @@ class Game
             p "Please type either 'y' or 'n'."
         end
     end
-
 end
