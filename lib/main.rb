@@ -1,7 +1,10 @@
+require 'yaml'
 require './game.rb'
 
-game =  Game.new()
-game.directions()
-game.round()
+$game =  Game.new()
+puts $game
+$game.directions()
+$game.round()
+
 
 

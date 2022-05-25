@@ -26,9 +26,13 @@ class Game
         puts "It's your job to guess what that word is."
         puts " "
         puts "Each turn, you can guess one letter to the word. If you're right, the computer will indicate that and show you where the letter is located in the word."
+        puts " "
         puts "If you're wrong, the computer will add the letter to the list of incorrect guesses you've made."
         puts " "
         puts "If you guess incorrectly 6 times, you lose."
+        puts " "
+        puts "You can enter 'exit' to leave the game at any time.  You can save your current game state by typing 'save' at any time."
+        puts "Are you ready to begin?  You can enter 'y' to begin or 'load' to pull up your last saved game."
     end
 
     def start
@@ -41,6 +45,14 @@ class Game
     def player_guess
         puts "Please enter your guess! It's turn number #{turn_number}."
         @current_guess= gets.chomp
+        if @current_guess == "save"
+            save_game?()
+            puts "Game Saved!  You can load this game at a later date"
+        elsif @current_guess == "exit"
+            puts "Thanks for playing!  Have a great day!"
+            exit
+        end
+
         if @current_guess.match /^[a-zA-Z]$/ 
             if @hint.include?(@current_guess) == false && wrong_guesses.include?(@current_guess) == false
             @turn_number+= 1 
@@ -59,7 +71,6 @@ class Game
             computer_word.each_with_index do |letter, index|
                 if letter == current_guess
                     hint[index] = current_guess
-                    p "Nice, you guessed correctly!"
                 end
             end
         else
@@ -77,16 +88,30 @@ class Game
     end
 
     def round()
-        start()
+        start_select = gets.chomp
+        if start_select == "load"
+            puts "Game Loaded!"
+            load_game()
+        elsif start_select == "y"
+            start()
+            game_play()
+        else
+            puts "Enter 'load' or 'y'"
+            round()
+        end
+    end
+
+    def game_play()
+
         until @win == true || wrong_guesses.length > 5
             player_guess()
             compare(@computer_word, @current_guess)
             @win = player_win?(@hint)
-            p hint.join(" ")
-            p wrong_guesses.join(", ")
+            p "Current Word:" +"  " + hint.join(" ")
+            p "Incorrect Guesses:" +"  " + wrong_guesses.join(", ")
         end
         if @win == true
-            p "Wow, you did it! The word was '#{@computer_word.join("")}.'  Would you like to play again?"
+            p "Wow, you did it! The word was '#{@computer_word.join("")}.'"
             play_again?()
         end
 
@@ -101,11 +126,29 @@ class Game
         play_again = gets.chomp.downcase
         if play_again== "y"
             initialize()
-            round()
+            game_play()
         elsif play_again == "n"
             p "Thanks for playing.  Have a great day!"
         else
             p "Please type either 'y' or 'n'."
+            play_again?()
         end
     end
+ 
+    def save_game?()
+        save_file_name= "save_state.txt"
+        save_file = File.open(save_file_name, "w")
+        save_file.puts YAML.dump($game)
+        save_file.close
+    end
+
+    def load_game()
+        save_file = File.open("save_state.txt", 'r')
+        $game = YAML.load(save_file, permitted_classes: [Game])
+        save_file.close
+        p "Current Word:  #{$game.hint.join(" ")}"
+        p "Wrong Guesses:  #{$game.wrong_guesses.join("")}"
+        $game.game_play()
+    end
+
 end
